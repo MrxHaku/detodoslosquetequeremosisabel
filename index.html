@@ -69,7 +69,7 @@
         }
         .btn-start:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0px #333; }
 
-        /* --- HEADER Y NAVEGACIÓN --- */
+        /* --- HEADER --- */
         .header-nav { 
             position: fixed; top: 0; width: 100%; height: 100px; 
             background: linear-gradient(to bottom, #f8f9f1 80%, transparent); 
@@ -82,7 +82,7 @@
             box-shadow: 4px 4px 0px #333; font-family: 'Bungee', cursive; z-index: 1001; 
         }
 
-        /* --- REPRODUCTOR MUSICAL --- */
+        /* --- REPRODUCTOR --- */
         .music-player {
             position: fixed; bottom: 20px; left: 20px; display: flex; align-items: center;
             gap: 12px; background: rgba(255, 255, 255, 0.98); padding: 10px 18px;
@@ -102,38 +102,33 @@
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .player-controls { display: flex; align-items: center; gap: 8px; }
-        .control-btn {
-            background: none; border: none; cursor: pointer; padding: 5px;
-            display: flex; align-items: center; justify-content: center; transition: 0.1s;
-        }
-        .control-btn:active { transform: scale(0.9); }
+        .control-btn { background: none; border: none; cursor: pointer; padding: 5px; display: flex; align-items: center; }
         .control-btn svg { width: 22px; height: 22px; fill: #333; }
 
         .song-info { font-size: 0.7rem; font-weight: bold; color: #333; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
         .volume-slider { -webkit-appearance: none; width: 60px; height: 4px; background: #ccc; border-radius: 5px; cursor: pointer; }
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 18px; height: 18px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>') no-repeat center;
-        }
 
-        /* --- CONTENIDO DE SOBRES --- */
+        /* --- SOBRES --- */
         #main-content { display: none; padding: 140px 20px 80px; flex-direction: column; align-items: center; min-height: 100vh; }
         .envelopes-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 35px; width: 100%; max-width: 1100px; }
         .envelope { 
             width: 140px; height: 100px; background: #f3d5b5; position: relative; 
-            cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 4px; 
+            cursor: pointer; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s;
         }
-        .envelope:hover { transform: scale(1.15) rotate(5deg); z-index: 50; }
-        .envelope.read { filter: grayscale(1); opacity: 0.5; transform: scale(0.9); }
+        .envelope:hover { transform: scale(1.1) rotate(3deg); }
+        .envelope.read { filter: grayscale(1); opacity: 0.5; }
         .envelope::after { content: ''; position: absolute; top: 0; left: 0; border-top: 50px solid #e6ccb2; border-left: 70px solid transparent; border-right: 70px solid transparent; }
         .env-number { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; color: #7f5539; z-index: 10; }
 
-        /* MODALES Y VHS */
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; z-index: 2000; overflow-y: auto; padding: 20px; }
-        .modal-container { display: flex; flex-wrap: wrap; background: #fdfcf0; max-width: 1100px; margin: 20px auto; border-radius: 8px; overflow: hidden; }
-        .text-side { flex: 1; padding: 30px; border-right: 1px dashed #ccc; }
+        /* --- MODAL CARTA --- */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; z-index: 3000; overflow-y: auto; padding: 20px; }
+        .modal-container { display: flex; flex-wrap: wrap; background: #fdfcf0; max-width: 1000px; margin: 40px auto; border-radius: 12px; overflow: hidden; border: 3px solid #333; }
+        .text-side { flex: 1; padding: 40px; border-right: 2px dashed #ccc; min-width: 300px; }
+        .photo-side { flex: 1; padding: 40px; background: #fff; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; min-width: 300px; }
+        
+        .polaroid { background: white; padding: 10px 10px 30px 10px; border: 1px solid #ddd; box-shadow: 0 10px 20px rgba(0,0,0,0.1); transform: rotate(var(--r)); }
+        .polaroid img { width: 200px; height: 200px; object-fit: cover; display: block; }
+
         #video-overlay { position: fixed; inset: 0; background: #000; display: none; z-index: 5000; justify-content: center; align-items: center; }
     </style>
 </head>
@@ -142,16 +137,12 @@
     <div class="music-player" id="player" style="display:none;">
         <div class="vinyl-disk" id="vinyl"></div>
         <div class="player-controls">
-            <button class="control-btn" onclick="prevTrack()">
-                <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-            </button>
-            <button class="control-btn" id="play-pause-btn" onclick="togglePlay()">
+            <button class="control-btn" onclick="prevTrack()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button class="control-btn" onclick="togglePlay()">
                 <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
-            <button class="control-btn" onclick="nextTrack()">
-                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-            </button>
+            <button class="control-btn" onclick="nextTrack()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
         </div>
         <div class="song-info"><span id="track-name">Cargando...</span></div>
         <input type="range" class="volume-slider" id="volume" min="0" max="1" step="0.01" value="0.5">
@@ -159,13 +150,6 @@
     </div>
 
     <div id="landing" class="grid-bg">
-        <span class="floating-emoji" style="top:10%; left:5%; --x:15px; --y:30px; --rot:10deg; --d:4s;">🎓</span>
-        <span class="floating-emoji" style="top:15%; right:8%; --x:-20px; --y:40px; --rot:-15deg; --d:5s;">🎤</span>
-        <span class="floating-emoji" style="bottom:20%; left:10%; --x:30px; --y:-20px; --rot:8deg; --d:6s;">📸</span>
-        <span class="floating-emoji" style="bottom:15%; right:15%; --x:-25px; --y:-30px; --rot:20deg; --d:4.5s;">🗼</span>
-        <span class="floating-emoji" style="top:45%; left:2%; --x:20px; --y:15px; --rot:-8deg; --d:7s;">✈️</span>
-        <span class="floating-emoji" style="top:55%; right:5%; --x:-30px; --y:-15px; --rot:12deg; --d:5.5s;">🎶</span>
-
         <div class="title-container">
             <div class="line" id="line1"></div>
             <div class="line" id="line2"></div>
@@ -186,22 +170,58 @@
         <div class="modal-container">
             <div class="text-side">
                 <div id="friend-name-container" style="display:flex; gap:5px; justify-content:center;"></div>
-                <p id="letter-text" style="margin-top:20px; white-space:pre-line;"></p>
-                <button style="margin-top:20px; padding:10px; cursor:pointer;" onclick="closeModal()">CERRAR</button>
+                <hr style="margin:20px 0; border:none; border-top:1px dashed #ccc;">
+                <p id="letter-text" style="line-height:1.6; color:#333; font-size:1.1rem; white-space:pre-line;"></p>
+                <button style="margin-top:30px; padding:10px 20px; cursor:pointer; font-family:'Bungee';" onclick="closeModal()">CERRAR</button>
             </div>
-            <div class="photo-side" id="photo-container" style="flex:1; padding:20px; display:flex; flex-wrap:wrap; gap:10px;"></div>
+            <div class="photo-side" id="photo-container"></div>
         </div>
     </div>
 
     <div id="video-overlay">
-        <div style="position:relative; width:95%; max-width:800px;">
+        <div style="width:90%; max-width:800px;">
             <video id="video-final" width="100%"><source src="video_cumple.mov" type="video/quicktime"></video>
-            <button style="width:100%; padding:15px; background:#e63946; color:white; border:none;" onclick="stopVideo()">CERRAR VIDEO</button>
+            <button style="width:100%; padding:15px; background:#e63946; color:white; border:none; cursor:pointer;" onclick="stopVideo()">CERRAR VIDEO</button>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN PLAYLIST
+        // --- 1. DATOS DE LAS CARTAS (Aquí es donde pones tu info) ---
+        const cartasData = [
+            { 
+                nombre: "Emanuel", 
+                texto: "¡Feliz cumpleaños, Bel!\n\nEres una persona increíble y este es un pequeño detalle de todos los que te queremos para celebrar tus 28 primaveras.", 
+                fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
+            },
+            { 
+                nombre: "Mamá", 
+                texto: "¡Feliz cumpleaños, Bel!\n\nEres una persona increíble y este es un pequeño detalle de todos los que te queremos para celebrar tus 28 primaveras.", 
+                fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
+            },
+            { 
+                nombre: "Papá", 
+                texto: "¡Feliz cumpleaños, Bel!\n\nEres una persona increíble y este es un pequeño detalle de todos los que te queremos para celebrar tus 28 primaveras.", 
+                fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
+            },
+            { 
+                nombre: "Anita", 
+                texto: "¡Feliz cumpleaños, Bel!\n\nEres una persona increíble y este es un pequeño detalle de todos los que te queremos para celebrar tus 28 primaveras.", 
+                fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
+            },
+            { 
+                nombre: "Daniel", 
+                texto: "¡Feliz cumpleaños, Bel!\n\nEres una persona increíble y este es un pequeño detalle de todos los que te queremos para celebrar tus 28 primaveras.", 
+                fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
+            },
+            { 
+                nombre: "Cata", 
+                texto: "¡Feliz cumpleaños, Bel!\n\nEres una persona increíble y este es un pequeño detalle de todos los que te queremos para celebrar tus 28 primaveras.", 
+                fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
+            },
+            // ... Agrega más cartas aquí siguiendo el mismo formato
+        ];
+
+        // --- 2. CONFIGURACIÓN MÚSICA ---
         const playlist = [
             { src: "music/cancion1.mp3", titulo: "Aprender a Quererte" },
             { src: "music/cancion2.mp3", titulo: "Corazón" },
@@ -211,53 +231,44 @@
             { src: "music/cancion6.mp3", titulo: "Learn to Love Again"}
         ];
 
-        let currentTrackIndex = 0;
-        const music = document.getElementById('bg-music');
-        const trackName = document.getElementById('track-name');
+        let currentTrack = 0;
+        const audio = document.getElementById('bg-music');
+        const trackText = document.getElementById('track-name');
         const vinyl = document.getElementById('vinyl');
-        const playIcon = document.getElementById('play-icon');
-        const pauseIcon = document.getElementById('pause-icon');
 
-        function loadTrack(index) {
-            music.src = playlist[index].src;
-            trackName.innerText = playlist[index].titulo;
-            music.load();
+        function loadSong(idx) {
+            audio.src = playlist[idx].src;
+            trackText.innerText = playlist[idx].titulo;
+            audio.load();
         }
-        loadTrack(currentTrackIndex);
+        loadSong(currentTrack);
 
         function togglePlay() {
-            if (music.paused) { music.play(); ui(true); } 
-            else { music.pause(); ui(false); }
+            if (audio.paused) { audio.play(); updateUI(true); } 
+            else { audio.pause(); updateUI(false); }
         }
 
-        function ui(isPlaying) {
-            playIcon.style.display = isPlaying ? 'none' : 'block';
-            pauseIcon.style.display = isPlaying ? 'block' : 'none';
-            vinyl.style.animationPlayState = isPlaying ? 'running' : 'paused';
+        function updateUI(playing) {
+            document.getElementById('play-icon').style.display = playing ? 'none' : 'block';
+            document.getElementById('pause-icon').style.display = playing ? 'block' : 'none';
+            vinyl.style.animationPlayState = playing ? 'running' : 'paused';
         }
 
-        function nextTrack() {
-            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-            loadTrack(currentTrackIndex); music.play(); ui(true);
-        }
+        function nextTrack() { currentTrack = (currentTrack + 1) % playlist.length; loadSong(currentTrack); audio.play(); updateUI(true); }
+        function prevTrack() { currentTrack = (currentTrack - 1 + playlist.length) % playlist.length; loadSong(currentTrack); audio.play(); updateUI(true); }
+        audio.onended = nextTrack;
 
-        function prevTrack() {
-            currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
-            loadTrack(currentTrackIndex); music.play(); ui(true);
-        }
-
-        music.onended = nextTrack;
-
+        // --- 3. LÓGICA DE LA INTERFAZ ---
         function start() {
             document.getElementById('landing').classList.add('hidden');
             document.getElementById('main-content').style.display = 'flex';
             document.getElementById('header-nav').style.display = 'flex';
             document.getElementById('player').style.display = 'flex';
-            music.play(); ui(true);
+            audio.play(); updateUI(true);
         }
 
-        // Títulos
-        function build(text, id) {
+        // Títulos de la landing
+        function buildTitle(text, id) {
             const container = document.getElementById(id);
             text.split(' ').forEach(word => {
                 const d = document.createElement('div'); d.style.display='flex';
@@ -270,33 +281,67 @@
                 const sp = document.createElement('div'); sp.style.width='10px'; container.appendChild(sp);
             });
         }
-        build("de todos los que", 'line1'); build("te queremos Bel", 'line2');
+        buildTitle("de todos los que", 'line1'); buildTitle("te queremos Bel", 'line2');
 
+        // Generar 28 sobres
         const grid = document.getElementById('grid');
-        let read = new Set();
+        let readSet = new Set();
+
         for(let i=0; i<28; i++) {
-            const e = document.createElement('div'); e.className='envelope';
-            e.innerHTML = `<div class="env-number">${(i+1).toString().padStart(2,'0')}</div>`;
-            e.onclick = () => { document.getElementById('overlay').style.display='block'; read.add(i); };
-            grid.appendChild(e);
+            const env = document.createElement('div');
+            env.className = 'envelope';
+            env.innerHTML = `<div class="env-number">${(i+1).toString().padStart(2,'0')}</div>`;
+            env.onclick = () => openLetter(i);
+            grid.appendChild(env);
+        }
+
+        function openLetter(index) {
+            const data = cartasData[index] || { nombre: "Amigo", texto: "Mensaje por escribir...", fotos: [] };
+            
+            // Nombre con estilo
+            const nameContainer = document.getElementById('friend-name-container');
+            nameContainer.innerHTML = '';
+            data.nombre.split('').forEach(c => {
+                const s = document.createElement('span');
+                s.className = `char v${Math.floor(Math.random()*5)+1}`;
+                s.style.fontSize = '1.2rem'; s.innerText = c;
+                nameContainer.appendChild(s);
+            });
+
+            document.getElementById('letter-text').innerText = data.texto;
+            
+            // Fotos Polaroid
+            const photoContainer = document.getElementById('photo-container');
+            photoContainer.innerHTML = '';
+            data.fotos.forEach(url => {
+                const pol = document.createElement('div');
+                pol.className = 'polaroid';
+                pol.style.setProperty('--r', `${Math.random()*10-5}deg`);
+                pol.innerHTML = `<img src="${url}">`;
+                photoContainer.appendChild(pol);
+            });
+
+            document.getElementById('overlay').style.display = 'block';
+            document.querySelectorAll('.envelope')[index].classList.add('read');
+            readSet.add(index);
         }
 
         function closeModal() {
-            document.getElementById('overlay').style.display='none';
-            if(read.size === 28) {
-                music.pause(); ui(false);
-                document.getElementById('video-overlay').style.display='flex';
+            document.getElementById('overlay').style.display = 'none';
+            if(readSet.size === 28) {
+                audio.pause(); updateUI(false);
+                document.getElementById('video-overlay').style.display = 'flex';
                 document.getElementById('video-final').play();
             }
         }
 
         function stopVideo() {
             document.getElementById('video-final').pause();
-            document.getElementById('video-overlay').style.display='none';
-            music.play(); ui(true);
+            document.getElementById('video-overlay').style.display = 'none';
+            audio.play(); updateUI(true);
         }
 
-        document.getElementById('volume').oninput = (e) => music.volume = e.target.value;
+        document.getElementById('volume').oninput = (e) => audio.volume = e.target.value;
     </script>
 </body>
 </html>
