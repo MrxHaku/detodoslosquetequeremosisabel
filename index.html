@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>28 Primaveras - Bel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --crema: #fdfcf0; --verde-p: #d4eadd; --texto: #333;
+            --rojo-r: #e63946; --azul-r: #a8dadc; --miel: #b08968;
+        }
+
+        * { box-sizing: border-box; }
+        body, html { 
+            margin: 0; padding: 0; background-color: var(--verde-p); 
+            font-family: 'Special Elite', serif; overflow-x: hidden;
+        }
+
+        /* --- LANDING --- */
+        #landing {
+            background-color: var(--crema); position: fixed; inset: 0; z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1s;
+        }
+        #landing.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        /* --- TÍTULO RANSOM --- */
+        .ransom-title, .friend-name { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .ransom-word { display: flex; white-space: nowrap; gap: 3px; }
+        .letter {
+            display: inline-block; font-family: 'Dancing Script', cursive;
+            font-size: clamp(1.2rem, 4vw, 2.5rem); padding: 8px 12px;
+            text-transform: uppercase; box-shadow: 3px 3px 6px rgba(0,0,0,0.1);
+            animation: move-subtle 3s ease-in-out infinite alternate;
+        }
+        .letter:nth-child(odd) { background: var(--rojo-r); color: white; --rot-orig: -3deg; }
+        .letter:nth-child(even) { background: #f1faee; color: #1d3557; border: 1px solid #ddd; --rot-orig: 2deg; }
+        
+        @keyframes move-subtle {
+            0% { transform: rotate(var(--rot-orig)); }
+            100% { transform: translate(2px, -2px) rotate(calc(var(--rot-orig) + 3deg)); }
+        }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        #main-content { display: none; padding: 80px 20px; flex-direction: column; align-items: center; }
+        
+        .envelopes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 30px; width: 100%; max-width: 1200px; padding: 20px;
+        }
+
+        .envelope {
+            aspect-ratio: 3/2; background: #f3d5b5; position: relative;
+            cursor: pointer; transition: 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex; justify-content: center; align-items: center; border-radius: 2px;
+        }
+        .envelope.read { filter: grayscale(1); opacity: 0.4; }
+        .envelope:hover { transform: translateY(-10px) rotate(2deg); }
+        .envelope .label { font-size: 0.7rem; font-weight: bold; color: var(--miel); text-align: center; padding: 10px; }
+
+        /* --- MODAL SPLIT (CARTA + FOTOS) --- */
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; z-index: 2000; padding: 15px; overflow-y: auto;
+        }
+        .modal-container {
+            display: flex; flex-wrap: wrap; background: var(--crema);
+            max-width: 1100px; margin: 20px auto; border-radius: 4px; overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+        .text-side { flex: 1.2; min-width: 320px; padding: 40px; border-right: 2px dashed #d6ccc2; }
+        .photo-side { flex: 1; min-width: 320px; padding: 40px; background: #f8f9fa; display: flex; flex-direction: column; gap: 30px; align-items: center; }
+
+        /* --- ESTILO POLAROID --- */
+        .polaroid {
+            background: white; padding: 12px 12px 35px 12px; box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            transform: rotate(var(--r)); width: 220px; border: 1px solid #eee;
+        }
+        .polaroid img { width: 100%; height: 180px; object-fit: cover; }
+        .polaroid p { margin-top: 10px; font-family: 'Dancing Script'; font-size: 1.2rem; text-align: center; color: #555; }
+
+        /* --- VIDEO VHS FINAL --- */
+        #vhs-final {
+            display: none; width: 100%; max-width: 700px; margin: 60px auto;
+            position: relative; border: 15px solid #111; background: #000;
+            box-shadow: 0 0 30px rgba(0,0,0,0.4);
+        }
+        .vhs-overlay {
+            position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px; z-index: 2; opacity: 0.3;
+        }
+        video { width: 100%; display: block; filter: contrast(1.1) brightness(1.1); }
+
+        .btn-close { 
+            display: block; margin: 30px auto 0; padding: 12px 25px; 
+            background: var(--rojo-r); color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-family: inherit;
+        }
+
+        @media (max-width: 768px) {
+            .text-side { border-right: none; border-bottom: 2px dashed #d6ccc2; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="landing">
+        <div class="ransom-title" id="main-title"></div>
+        <button onclick="start()" style="margin-top:50px; padding: 15px 40px; cursor:pointer; font-family: 'Dancing Script'; font-size: 2rem; border-radius: 50px; border:none; background:#fff; box-shadow:0 5px 15px rgba(0,0,0,0.1);">Abrir regalo</button>
+    </div>
+
+    <div id="main-content">
+        <div class="envelopes-grid" id="grid"></div>
+        
+        <div id="vhs-final">
+            <div class="vhs-overlay"></div>
+            <video id="video-cumple" controls>
+                <source src="video_cumpleaños.mov" type="video/quicktime">
+            </video>
+            <div style="background:#111; color: #0f0; font-family: monospace; padding: 5px 15px; font-size: 0.8rem;">
+                PLAY ▶ 00:28:00
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="modal-container">
+            <div class="text-side">
+                <div id="friend-name-container" class="friend-name"></div>
+                <hr style="margin: 25px 0; border: none; border-top: 1px solid #eee;">
+                <p id="letter-text" style="line-height: 1.8; color: #444; white-space: pre-line;"></p>
+                <button class="btn-close" onclick="closeModal()">Seguir leyendo</button>
+            </div>
+            <div class="photo-side" id="photo-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- DASHBOARD DE DATOS (Aquí es donde trabajas tú) ---
+        const cartasData = [
+            {
+                nombre: "Emaoso",
+                texto: "Hola mi vida, esta es la primera de 28 sorpresas...\n\nTe amo por cómo eres y por lo que somos juntos.",
+                fotos: ["yo_y_bel.jpg", "bel_sonriendo.jpg"], // Nombres de tus archivos de imagen
+                pieFoto: "Nosotros en el 2025"
+            },
+            {
+                nombre: "Mama",
+                texto: "Hija, feliz cumpleaños. Que la vida te siga regalando luz.",
+                fotos: ["mama_bel.jpg"],
+                pieFoto: "Siempre juntas"
+            },
+            // Agrega aquí las otras 26 cartas siguiendo el mismo formato...
+        ];
+
+        // Función para el efecto Ransom (letras cortadas)
+        function createRansomText(text, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            text.split(' ').forEach(word => {
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'ransom-word';
+                word.split('').forEach(char => {
+                    const l = document.createElement('span');
+                    l.className = 'letter';
+                    l.innerText = char;
+                    wordSpan.appendChild(l);
+                });
+                container.appendChild(wordSpan);
+            });
+        }
+
+        // Configuración inicial
+        createRansomText("De todos los que te queremos Bel", "main-title");
+        const grid = document.getElementById('grid');
+        let readCount = new Set();
+
+        // Generar los 28 sobres automáticamente
+        cartasData.forEach((data, index) => {
+            const env = document.createElement('div');
+            env.className = 'envelope';
+            env.id = `env-${index}`;
+            env.innerHTML = `<div class="label">Para Bel de:<br>${data.nombre}</div>`;
+            env.onclick = () => openLetter(index);
+            grid.appendChild(env);
+        });
+
+        function start() {
+            document.getElementById('landing').classList.add('hidden');
+            setTimeout(() => { document.getElementById('main-content').style.display = 'flex'; }, 800);
+        }
+
+        function openLetter(index) {
+            const data = cartasData[index];
+            createRansomText(data.nombre, "friend-name-container");
+            document.getElementById('letter-text').innerText = data.texto;
+            
+            const pContainer = document.getElementById('photo-container');
+            pContainer.innerHTML = '';
+            
+            data.fotos.forEach((src, i) => {
+                const pol = document.createElement('div');
+                pol.className = 'polaroid';
+                // Rotación aleatoria para que parezcan fotos reales sobre la mesa
+                const rotation = Math.floor(Math.random() * 12) - 6;
+                pol.style.setProperty('--r', `${rotation}deg`);
+                pol.innerHTML = `<img src="${src}"><p>${data.pieFoto || 'Recuerdos'}</p>`;
+                pContainer.appendChild(pol);
+            });
+
+            document.getElementById('overlay').style.display = 'block';
+            
+            if(!readCount.has(index)) {
+                document.getElementById(`env-${index}`).classList.add('read');
+                readCount.add(index);
+            }
+            
+            // Si leyó todas, aparece el video final
+            if(readCount.size === cartasData.length) {
+                document.getElementById('vhs-final').style.display = 'block';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
