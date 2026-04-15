@@ -17,7 +17,6 @@
             font-family: 'Special Elite', serif; overflow-x: hidden;
         }
 
-        /* --- RETÍCULA GLOBAL --- */
         .grid-bg {
             background-color: var(--crema);
             background-image: 
@@ -51,38 +50,36 @@
         .v4 { background: var(--v4); color: white; }
         .v5 { background: var(--v5); color: white; }
 
-        /* --- EMOJIS FLOTANTES --- */
+        /* --- EMOJIS Y POLAROIDS LANDING --- */
         .floating-emoji {
-            position: absolute; font-size: clamp(2.5rem, 7vw, 5rem);
+            position: absolute; font-size: clamp(2rem, 6vw, 4rem);
             user-select: none; z-index: 5;
             animation: float-around var(--d) ease-in-out infinite alternate;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
         }
+
+        .polaroid-landing {
+            position: absolute; background: white; padding: 8px 8px 25px 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 1px solid #ddd;
+            z-index: 6; width: clamp(120px, 15vw, 180px);
+            transform: rotate(var(--r));
+            transition: 0.3s;
+        }
+        .polaroid-landing:hover { transform: rotate(0deg) scale(1.1); z-index: 15; }
+        .polaroid-landing img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+
         @keyframes float-around {
             0% { transform: translate(0, 0) rotate(0deg); }
             100% { transform: translate(var(--x), var(--y)) rotate(var(--rot)); }
         }
 
         .btn-start {
-            margin-top: 30px; padding: 15px 40px; cursor: pointer;
+            margin-top: 50px; padding: 15px 40px; cursor: pointer;
             font-family: 'Dancing Script'; font-size: 2rem;
             border-radius: 50px; border: 3px solid #333; background: #fff;
             box-shadow: 6px 6px 0px #333; transition: 0.2s; z-index: 20;
         }
         .btn-start:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0px #333; }
-
-        /* --- HEADER --- */
-        .header-nav { 
-            position: fixed; top: 0; width: 100%; height: 100px; 
-            background: linear-gradient(to bottom, #f8f9f1 80%, transparent); 
-            display: flex; justify-content: center; align-items: center; z-index: 500; 
-        }
-        .header-nav h1 { font-family: 'Dancing Script'; color: #d62828; margin: 0; font-size: clamp(1.5rem, 5vw, 2.5rem); }
-        .back-arrow { 
-            position: absolute; left: 20px; cursor: pointer; font-size: 0.8rem; 
-            background: #fff; border: 2px solid #333; padding: 8px 12px; 
-            box-shadow: 4px 4px 0px #333; font-family: 'Bungee', cursive; z-index: 1001; 
-        }
 
         /* --- REPRODUCTOR --- */
         .music-player {
@@ -90,47 +87,24 @@
             gap: 12px; background: rgba(255, 255, 255, 0.98); padding: 10px 18px;
             border-radius: 50px; border: 2px solid #333; box-shadow: 4px 4px 0px #333; z-index: 2000;
         }
-
         .vinyl-disk {
-            width: 45px; height: 45px; 
-            background: 
-                radial-gradient(circle at center, #fff 15%, transparent 16%),
-                radial-gradient(circle at center, #222 17%, transparent 18%),
-                repeating-radial-gradient(circle at center, #222, #222 1px, #fff 1px, #fff 2px),
-                conic-gradient(#fff 0deg 90deg, #222 90deg 180deg, #fff 180deg 270deg, #222 270deg 360deg);
-            border-radius: 50%; border: 1px solid #000;
+            width: 45px; height: 45px; border-radius: 50%; border: 1px solid #000;
+            background: radial-gradient(circle, #fff 15%, #222 17%, #222 100%);
             animation: spin 3s linear infinite; animation-play-state: paused;
         }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        .player-controls { display: flex; align-items: center; gap: 8px; }
-        .control-btn { background: none; border: none; cursor: pointer; padding: 5px; display: flex; align-items: center; }
-        .control-btn svg { width: 22px; height: 22px; fill: #333; }
-
-        .song-info { font-size: 0.7rem; font-weight: bold; color: #333; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .volume-slider { --webkit-appearance: none; width: 60px; height: 4px; background: #ccc; border-radius: 5px; cursor: pointer; }
-
-        /* --- SOBRES --- */
+        /* --- SOBRES Y MODALES --- */
         #main-content { display: none; padding: 140px 20px 80px; flex-direction: column; align-items: center; min-height: 100vh; }
         .envelopes-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 35px; width: 100%; max-width: 1100px; }
-        .envelope { 
-            width: 140px; height: 100px; background: #f3d5b5; position: relative; 
-            cursor: pointer; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s;
-        }
-        .envelope:hover { transform: scale(1.1) rotate(3deg); }
-        .envelope.read { filter: grayscale(1); opacity: 0.5; }
+        .envelope { width: 140px; height: 100px; background: #f3d5b5; position: relative; cursor: pointer; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .envelope::after { content: ''; position: absolute; top: 0; left: 0; border-top: 50px solid #e6ccb2; border-left: 70px solid transparent; border-right: 70px solid transparent; }
         .env-number { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; color: #7f5539; z-index: 10; }
-
-        /* --- MODALES --- */
+        
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; z-index: 3000; overflow-y: auto; padding: 20px; }
         .modal-container { display: flex; flex-wrap: wrap; background: #fdfcf0; max-width: 1000px; margin: 40px auto; border-radius: 12px; overflow: hidden; border: 3px solid #333; }
-        .text-side { flex: 1; padding: 40px; border-right: 2px dashed #ccc; min-width: 300px; }
-        .photo-side { flex: 1; padding: 40px; background: #fff; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; min-width: 300px; }
-        
-        .polaroid { background: white; padding: 10px 10px 30px 10px; border: 1px solid #ddd; box-shadow: 0 10px 20px rgba(0,0,0,0.1); transform: rotate(var(--r)); }
-        .polaroid img { width: 200px; height: 200px; object-fit: cover; display: block; }
-
+        .polaroid { background: white; padding: 10px 10px 30px 10px; border: 1px solid #ddd; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .polaroid img { width: 200px; height: 200px; object-fit: cover; }
         #video-overlay { position: fixed; inset: 0; background: #000; display: none; z-index: 5000; justify-content: center; align-items: center; }
     </style>
 </head>
@@ -138,26 +112,30 @@
 
     <div class="music-player" id="player" style="display:none;">
         <div class="vinyl-disk" id="vinyl"></div>
-        <div class="player-controls">
-            <button class="control-btn" onclick="prevTrack()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-            <button class="control-btn" onclick="togglePlay()">
-                <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button onclick="prevTrack()" style="background:none; border:none; cursor:pointer;"><svg width="20" height="20" fill="#333" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button onclick="togglePlay()" style="background:none; border:none; cursor:pointer;">
+                <svg id="play-icon" width="24" height="24" fill="#333" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="pause-icon" width="24" height="24" fill="#333" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             </button>
-            <button class="control-btn" onclick="nextTrack()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+            <button onclick="nextTrack()" style="background:none; border:none; cursor:pointer;"><svg width="20" height="20" fill="#333" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
         </div>
-        <div class="song-info"><span id="track-name">Cargando...</span></div>
-        <input type="range" class="volume-slider" id="volume" min="0" max="1" step="0.01" value="0.5">
+        <div class="song-info"><span id="track-name" style="font-size:0.7rem; font-weight:bold;">Cargando...</span></div>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5" style="width:50px;">
         <audio id="bg-music"></audio>
     </div>
 
     <div id="landing" class="grid-bg">
-        <span class="floating-emoji" style="top:10%; left:5%; --x:15px; --y:30px; --rot:10deg; --d:4s;">🎓</span>
-        <span class="floating-emoji" style="top:15%; right:8%; --x:-20px; --y:40px; --rot:-15deg; --d:5s;">🎤</span>
-        <span class="floating-emoji" style="bottom:20%; left:10%; --x:30px; --y:-20px; --rot:8deg; --d:6s;">📸</span>
-        <span class="floating-emoji" style="bottom:15%; right:15%; --x:-25px; --y:-30px; --rot:20deg; --d:4.5s;">🗼</span>
-        <span class="floating-emoji" style="top:45%; left:2%; --x:20px; --y:15px; --rot:-8deg; --d:7s;">✈️</span>
-        <span class="floating-emoji" style="top:55%; right:5%; --x:-30px; --y:-15px; --rot:12deg; --d:5.5s;">🎶</span>
+        <div class="polaroid-landing" style="top:10%; left:10%; --r:-8deg;"><img src="img/bebe1.jpg" alt="Isa peque"></div>
+        <div class="polaroid-landing" style="top:50%; right:5%; --r:12deg;"><img src="img/bebe2.jpg" alt="Isa peque"></div>
+        <div class="polaroid-landing" style="bottom:5%; left:15%; --r:5deg;"><img src="img/bebe3.jpg" alt="Isa peque"></div>
+
+        <span class="floating-emoji" style="top:15%; right:20%; --x:20px; --y:40px; --rot:15deg; --d:4s;">🎨</span>
+        <span class="floating-emoji" style="top:40%; left:5%; --x:-15px; --y:30px; --rot:-10deg; --d:5s;">🎬</span>
+        <span class="floating-emoji" style="bottom:20%; right:25%; --x:25px; --y:-20px; --rot:20deg; --d:6s;">🌻</span>
+        <span class="floating-emoji" style="top:70%; left:8%; --x:30px; --y:20px; --rot:-15deg; --d:4.5s;">✍️</span>
+        <span class="floating-emoji" style="bottom:40%; right:10%; --x:-20px; --y:-30px; --rot:10deg; --d:5.5s;">🤳</span>
+        <span class="floating-emoji" style="top:5%; left:40%; --x:10px; --y:20px; --rot:5deg; --d:7s;">📸</span>
 
         <div class="title-container">
             <div class="line" id="line1"></div>
@@ -166,9 +144,8 @@
         <button class="btn-start" onclick="start()">Abrir</button>
     </div>
 
-    <div class="header-nav" id="header-nav" style="display:none;">
-        <button class="back-arrow" onclick="location.reload()">← VOLVER</button>
-        <h1>Happy Birthday, Isa</h1>
+    <div id="header-nav" style="display:none; position:fixed; top:0; width:100%; height:80px; justify-content:center; align-items:center; z-index:100;">
+        <h1 style="font-family:'Dancing Script'; color:#d62828;">Happy Birthday, Isa</h1>
     </div>
 
     <div id="main-content" class="grid-bg">
@@ -177,25 +154,21 @@
 
     <div class="overlay" id="overlay">
         <div class="modal-container">
-            <div class="text-side">
-                <div id="friend-name-container" style="display:flex; gap:5px; justify-content:center;"></div>
-                <hr style="margin:20px 0; border:none; border-top:1px dashed #ccc;">
-                <p id="letter-text" style="line-height:1.6; color:#333; font-size:1.1rem; white-space:pre-line;"></p>
-                <button style="margin-top:30px; padding:10px 20px; cursor:pointer; font-family:'Bungee';" onclick="closeModal()">CERRAR</button>
+            <div class="text-side" style="flex:1; padding:30px;">
+                <div id="friend-name" style="display:flex; gap:5px;"></div>
+                <p id="letter-text" style="margin-top:20px; white-space:pre-line;"></p>
+                <button onclick="closeModal()" style="margin-top:20px; cursor:pointer;">CERRAR</button>
             </div>
-            <div class="photo-side" id="photo-container"></div>
+            <div class="photo-side" id="photo-container" style="flex:1; padding:30px; display:flex; flex-wrap:wrap; gap:10px; background:#fff;"></div>
         </div>
     </div>
 
     <div id="video-overlay">
-        <div style="width:90%; max-width:800px;">
-            <video id="video-final" width="100%"><source src="video_cumple.mov" type="video/quicktime"></video>
-            <button style="width:100%; padding:15px; background:#e63946; color:white; border:none; cursor:pointer;" onclick="stopVideo()">CERRAR VIDEO</button>
-        </div>
+        <video id="video-final" width="90%"><source src="video_cumple.mov" type="video/quicktime"></video>
+        <button onclick="stopVideo()" style="position:absolute; bottom:20px; padding:10px 20px;">CERRAR VIDEO</button>
     </div>
 
     <script>
-        // DATOS DE LAS CARTAS (Llena los 28 aquí)
         const cartasData = [
             { 
                 nombre: "Mamá", 
@@ -218,7 +191,12 @@
                 fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
             },
             { 
-                nombre: "Catalina", 
+                nombre: "Cata", 
+                texto: "¡Feliz cumpleaños, Bel!\n\nEres una persona increíble y este es un pequeño detalle de todos los que te queremos para celebrar tus 28 primaveras.", 
+                fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
+            },
+            { 
+                nombre: "Paulis", 
                 texto: "¡Feliz cumpleaños, Bel!\n\nEres una persona increíble y este es un pequeño detalle de todos los que te queremos para celebrar tus 28 primaveras.", 
                 fotos: ["img/bel1.jpg", "img/bel2.jpg"] 
             },
@@ -236,37 +214,34 @@
 
         let currentTrack = 0;
         const audio = document.getElementById('bg-music');
-        const trackText = document.getElementById('track-name');
         const vinyl = document.getElementById('vinyl');
 
         function loadSong(idx) {
             audio.src = playlist[idx].src;
-            trackText.innerText = playlist[idx].titulo;
+            document.getElementById('track-name').innerText = playlist[idx].titulo;
             audio.load();
         }
         loadSong(currentTrack);
 
         function togglePlay() {
-            if (audio.paused) { audio.play(); updateUI(true); } 
-            else { audio.pause(); updateUI(false); }
+            if (audio.paused) { audio.play(); ui(true); } else { audio.pause(); ui(false); }
         }
 
-        function updateUI(playing) {
+        function ui(playing) {
             document.getElementById('play-icon').style.display = playing ? 'none' : 'block';
             document.getElementById('pause-icon').style.display = playing ? 'block' : 'none';
             vinyl.style.animationPlayState = playing ? 'running' : 'paused';
         }
 
-        function nextTrack() { currentTrack = (currentTrack + 1) % playlist.length; loadSong(currentTrack); audio.play(); updateUI(true); }
-        function prevTrack() { currentTrack = (currentTrack - 1 + playlist.length) % playlist.length; loadSong(currentTrack); audio.play(); updateUI(true); }
-        audio.onended = nextTrack;
+        function nextTrack() { currentTrack = (currentTrack + 1) % playlist.length; loadSong(currentTrack); audio.play(); ui(true); }
+        function prevTrack() { currentTrack = (currentTrack - 1 + playlist.length) % playlist.length; loadSong(currentTrack); audio.play(); ui(true); }
 
         function start() {
             document.getElementById('landing').classList.add('hidden');
             document.getElementById('main-content').style.display = 'flex';
             document.getElementById('header-nav').style.display = 'flex';
             document.getElementById('player').style.display = 'flex';
-            audio.play(); updateUI(true);
+            audio.play(); ui(true);
         }
 
         function buildTitle(text, id) {
@@ -279,62 +254,41 @@
                     d.appendChild(s);
                 });
                 container.appendChild(d);
-                const sp = document.createElement('div'); sp.style.width='10px'; container.appendChild(sp);
             });
         }
         buildTitle("de todos los que", 'line1'); buildTitle("te queremos, Bel", 'line2');
 
         const grid = document.getElementById('grid');
         let readSet = new Set();
-
         for(let i=0; i<28; i++) {
-            const env = document.createElement('div');
-            env.className = 'envelope';
+            const env = document.createElement('div'); env.className = 'envelope';
             env.innerHTML = `<div class="env-number">${(i+1).toString().padStart(2,'0')}</div>`;
             env.onclick = () => openLetter(i);
             grid.appendChild(env);
         }
 
-        function openLetter(index) {
-            const data = cartasData[index] || { nombre: "Amigo", texto: "Mensaje pendiente...", fotos: [] };
-            const nameContainer = document.getElementById('friend-name-container');
-            nameContainer.innerHTML = '';
-            data.nombre.split('').forEach(c => {
-                const s = document.createElement('span');
-                s.className = `char v${Math.floor(Math.random()*5)+1}`;
-                s.style.fontSize = '1.2rem'; s.innerText = c;
-                nameContainer.appendChild(s);
-            });
+        function openLetter(i) {
+            const data = cartasData[i] || { nombre: "Amigo", texto: "Mensaje...", fotos: [] };
             document.getElementById('letter-text').innerText = data.texto;
             const photoContainer = document.getElementById('photo-container');
             photoContainer.innerHTML = '';
             data.fotos.forEach(url => {
-                const pol = document.createElement('div');
-                pol.className = 'polaroid';
-                pol.style.setProperty('--r', `${Math.random()*10-5}deg`);
-                pol.innerHTML = `<img src="${url}">`;
-                photoContainer.appendChild(pol);
+                const pol = document.createElement('div'); pol.className = 'polaroid';
+                pol.innerHTML = `<img src="${url}">`; photoContainer.appendChild(pol);
             });
             document.getElementById('overlay').style.display = 'block';
-            document.querySelectorAll('.envelope')[index].classList.add('read');
-            readSet.add(index);
+            readSet.add(i);
         }
 
         function closeModal() {
             document.getElementById('overlay').style.display = 'none';
             if(readSet.size === 28) {
-                audio.pause(); updateUI(false);
-                document.getElementById('video-overlay').style.display = 'flex';
+                audio.pause(); document.getElementById('video-overlay').style.display = 'flex';
                 document.getElementById('video-final').play();
             }
         }
 
-        function stopVideo() {
-            document.getElementById('video-final').pause();
-            document.getElementById('video-overlay').style.display = 'none';
-            audio.play(); updateUI(true);
-        }
-
+        function stopVideo() { document.getElementById('video-final').pause(); document.getElementById('video-overlay').style.display = 'none'; audio.play(); ui(true); }
         document.getElementById('volume').oninput = (e) => audio.volume = e.target.value;
     </script>
 </body>
