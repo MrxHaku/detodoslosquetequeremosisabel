@@ -220,6 +220,24 @@
         /* Estado "pendiente" del sobre */
         .envelope.pendiente .env-body { background: repeating-linear-gradient(45deg, #f3d5b5, #f3d5b5 5px, #edd5aa 5px, #edd5aa 10px); }
         .envelope.pendiente .env-number { opacity: 0.5; }
+
+        #video-overlay { 
+        position: fixed; inset: 0; background: #000; 
+        display: none; z-index: 5000; 
+        justify-content: center; align-items: center; 
+        }
+
+        .vhs-lines { 
+            position: absolute; inset: 0; pointer-events: none; z-index: 5001; 
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04)); 
+            background-size: 100% 4px, 3px 100%; opacity: 0.6; 
+            animation: vhs-flicker 0.1s infinite;
+        }
+
+        @keyframes vhs-flicker {
+            0% { opacity: 0.5; } 50% { opacity: 0.6; } 100% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body class="grid-bg">
@@ -450,42 +468,34 @@
         buildLetters("te queremos, Bel", 'line2');
 
         // ── ABRIR CARTA ──────────────────────────────────────────────
-        function openLetter(i) {
-            const data = cartasData[i] || { nombre: `Carta ${i + 1}`, texto: null, foto1: null, foto2: null, enviada: false };
+        let cartasLeidas = new Set(); // Guardamos los IDs de las cartas abiertas
+        const TOTAL_CARTAS = 28; // El número mágico
 
-            buildLetters(data.nombre, 'friend-name-container');
-
-            if (!data.enviada || !data.texto) {
-                document.getElementById('letter-text').innerHTML = '<em style="color:#aaa;">Esta persona aún no ha enviado su carta 💌</em>';
-            } else {
-                document.getElementById('letter-text').innerText = data.texto;
-            }
-
-            const pCont = document.getElementById('photo-container');
-            pCont.innerHTML = '';
-            [data.foto1, data.foto2].forEach(url => {
-                if (!url) return;
-                const pol = document.createElement('div');
-                pol.style.cssText = `transform: rotate(${Math.random() * 10 - 5}deg); background:#fff; padding:10px 10px 30px; box-shadow:0 5px 15px rgba(0,0,0,0.2);`;
-                pol.innerHTML = `<img src="${url}" style="width:180px; height:180px; object-fit:cover;" onerror="this.parentElement.style.display='none'">`;
-                pCont.appendChild(pol);
-            });
-
-            document.getElementById('overlay').style.display = 'flex';
-            document.querySelectorAll('.envelope')[i].style.filter = 'grayscale(1)';
-            readSet.add(i);
+        async function openLetter(id) {
+            // ... tu lógica actual para traer la carta de Supabase ...
+            
+            // Mostramos el modal
+            document.getElementById('overlay').style.display = 'block';
+            
+            // Marcamos como leída en el Set
+            cartasLeidas.add(id);
+            
+            // Efecto visual en el sobre
+            const sobre = document.querySelectorAll('.envelope')[id];
+            if(sobre) sobre.style.filter = 'grayscale(1) opacity(0.7)';
+            
+            console.log(`Llevas ${cartasLeidas.size} de ${TOTAL_CARTAS} cartas leídas`);
         }
 
         // ── CERRAR MODAL ─────────────────────────────────────────────
         function closeModal() {
-            document.getElementById('overlay').style.display = 'none';
-            const totalEnviadas = cartasData.filter(c => c && c.enviada).length;
-            if (readSet.size >= totalEnviadas && totalEnviadas === totalUsuarios && totalUsuarios > 0) {
-                if (!audio.paused) { audio.pause(); ui(false); }
-                document.getElementById('video-overlay').style.display = 'flex';
-                document.getElementById('video-final').play();
-            }
+        document.getElementById('overlay').style.display = 'none';
+
+        // Verificamos si ya leyó todas
+        if (cartasLeidas.size >= TOTAL_CARTAS) {
+            dispararVideoFinal();
         }
+       }
 
         // ── FLORES ───────────────────────────────────────────────────
         function createFlowers() {
@@ -518,8 +528,21 @@
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loader').classList.add('hidden');
-            }, 1800);
+            }, 3000);
         });
+        function dispararVideoFinal() {
+        // Pausamos la música de fondo
+        if (audio) {
+            audio.pause();
+            ui(false);
+        }
+
+        const videoOverlay = document.getElementById('video-overlay');
+        const video = document.getElementById('video-final');
+
+        videoOverlay.style.display = 'flex';
+        video.play();
+        }
     </script>
 </body>
 </html>
