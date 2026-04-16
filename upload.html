@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un regalo para Isa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Dancing+Script:wght@700&family=Bungee&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>">
+    <style>
+        :root { --crema: #fdfcf0; --v1: #E91E63; --v2: #FFEB3B; --v3: #2196F3; --v4: #4CAF50; --v5: #FF5722; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Special Elite', serif;
+            background-color: var(--crema);
+            background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            min-height: 100vh;
+        }
+
+        /* ── PANTALLAS ── */
+        .screen { display: none; min-height: 100vh; }
+        .screen.active { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 20px; }
+
+        /* ── LETRAS RECORTADAS ── */
+        .char {
+            display: inline-block; font-family: 'Bungee', cursive;
+            font-size: clamp(2rem, 8vw, 5rem);
+            padding: 10px 14px; box-shadow: 4px 4px 0px rgba(0,0,0,0.15);
+            transform: rotate(var(--r)); margin: 3px;
+        }
+        .v1 { background: var(--v1); color: white; }
+        .v2 { background: var(--v2); color: #333; }
+        .v3 { background: var(--v3); color: white; }
+        .v4 { background: var(--v4); color: white; }
+        .v5 { background: var(--v5); color: white; }
+
+        .name-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-bottom: 30px; }
+
+        /* ── MENSAJE INTRO ── */
+        .intro-box {
+            max-width: 560px; text-align: center;
+            font-size: 1.2rem; line-height: 1.8; color: #555;
+            background: #fff; border: 2px dashed #ccc;
+            padding: 28px 32px; margin-bottom: 36px;
+        }
+
+        /* ── BOTÓN ── */
+        .btn {
+            padding: 16px 40px; cursor: pointer; font-family: 'Bungee';
+            font-size: 1.1rem; border: 3px solid #333; background: #fff;
+            box-shadow: 5px 5px 0px #333; transition: 0.2s; color: #333;
+            text-decoration: none; display: inline-block;
+        }
+        .btn:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0px #333; }
+        .btn.pink { background: var(--v1); color: white; border-color: #c01454; box-shadow: 5px 5px 0px #c01454; }
+        .btn.pink:hover { box-shadow: 7px 7px 0px #c01454; }
+
+        /* ── FORMULARIO LOGIN ── */
+        .form-card {
+            background: #fff; border: 3px solid #333; box-shadow: 8px 8px 0px #333;
+            padding: 40px; width: 100%; max-width: 420px;
+        }
+        .form-card h2 { font-family: 'Dancing Script'; font-size: 2rem; color: #d62828; margin-bottom: 24px; text-align: center; }
+        .field { margin-bottom: 20px; }
+        .field label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: #666; letter-spacing: 0.05em; }
+        .field input, .field textarea {
+            width: 100%; padding: 12px 16px; font-family: 'Special Elite', serif;
+            font-size: 1rem; border: 2px solid #ccc; background: var(--crema);
+            outline: none; transition: border 0.2s;
+        }
+        .field input:focus, .field textarea:focus { border-color: #333; }
+        .field textarea { resize: vertical; min-height: 160px; }
+
+        /* Upload de fotos */
+        .photo-upload-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+        .photo-slot {
+            flex: 1; min-width: 140px; border: 2px dashed #ccc; background: var(--crema);
+            padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; position: relative;
+        }
+        .photo-slot:hover { border-color: #333; }
+        .photo-slot input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+        .photo-slot .preview { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: none; }
+        .photo-slot .placeholder { font-size: 2rem; margin-bottom: 6px; }
+        .photo-slot .label { font-size: 0.8rem; color: #888; }
+
+        /* Error / estado */
+        .error-msg { color: #d62828; font-size: 0.9rem; margin-top: 10px; text-align: center; }
+        .spinner { display: none; width: 28px; height: 28px; border: 3px solid #ccc; border-top-color: #333; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── GRACIAS ── */
+        #screen-gracias .gracias-icon { font-size: 5rem; margin-bottom: 20px; animation: heartbeat 1.5s infinite; }
+        @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+        #screen-gracias h1 { font-family: 'Dancing Script'; font-size: clamp(2rem, 6vw, 3.5rem); color: #d62828; text-align: center; margin-bottom: 16px; }
+        #screen-gracias p { font-size: 1.1rem; color: #666; text-align: center; max-width: 440px; line-height: 1.7; }
+
+        .floating-emoji { 
+            position: fixed; font-size: 2.5rem; pointer-events: none;
+            animation: floatEmoji 5s ease-in-out infinite alternate; z-index: 0;
+        }
+        @keyframes floatEmoji {
+            from { transform: translate(0, 0) rotate(-10deg); }
+            to { transform: translate(12px, -18px) rotate(10deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Emojis de fondo decorativos -->
+    <span class="floating-emoji" style="top:5%; left:5%;">🌸</span>
+    <span class="floating-emoji" style="top:10%; right:8%; animation-delay:1s;">✨</span>
+    <span class="floating-emoji" style="bottom:15%; left:10%; animation-delay:2s;">💖</span>
+    <span class="floating-emoji" style="bottom:10%; right:12%; animation-delay:0.5s;">🌻</span>
+
+    <!-- ── PANTALLA 1: LANDING ── -->
+    <div id="screen-landing" class="screen active">
+        <div class="name-row" id="nombre-letras"></div>
+        <div class="intro-box">
+            <p>Isa está a punto de cumplir 28 años y queremos hacerle algo muy especial.</p>
+            <br>
+            <p>En esta página vas a poder escribirle una cartita y subir dos fotos juntas — todo eso va a aparecer como un sobre secreto en su regalo de cumpleaños. 💌</p>
+            <br>
+            <p>¡Sorpréndela con tus palabras!</p>
+        </div>
+        <button class="btn pink" onclick="irALogin()">ESCRIBIR MI CARTA →</button>
+    </div>
+
+    <!-- ── PANTALLA 2: LOGIN ── -->
+    <div id="screen-login" class="screen">
+        <div class="form-card">
+            <h2>Accede con tu clave</h2>
+            <div class="field">
+                <label>USUARIO</label>
+                <input type="text" id="input-usuario" placeholder="Tu nombre" autocomplete="username">
+            </div>
+            <div class="field">
+                <label>CONTRASEÑA</label>
+                <input type="password" id="input-pass" placeholder="Tu clave secreta" autocomplete="current-password">
+            </div>
+            <div id="login-error" class="error-msg"></div>
+            <div class="spinner" id="login-spinner"></div>
+            <br>
+            <button class="btn" style="width:100%;" onclick="hacerLogin()">ENTRAR</button>
+        </div>
+    </div>
+
+    <!-- ── PANTALLA 3: FORMULARIO ── -->
+    <div id="screen-form" class="screen">
+        <div class="form-card" style="max-width:560px;">
+            <h2>Tu carta para Isa 💌</h2>
+
+            <div class="field">
+                <label>TU MENSAJE</label>
+                <textarea id="input-mensaje" placeholder="Escríbele algo desde el corazón..."></textarea>
+            </div>
+
+            <div class="field">
+                <label>TUS FOTOS (sube 2 fotos juntas a ella)</label>
+                <div class="photo-upload-grid">
+                    <div class="photo-slot" id="slot1">
+                        <input type="file" accept="image/*" onchange="previewFoto(this, 'slot1')">
+                        <div class="placeholder">📷</div>
+                        <img class="preview" id="preview1">
+                        <div class="label">Foto 1</div>
+                    </div>
+                    <div class="photo-slot" id="slot2">
+                        <input type="file" accept="image/*" onchange="previewFoto(this, 'slot2')">
+                        <div class="placeholder">📷</div>
+                        <img class="preview" id="preview2">
+                        <div class="label">Foto 2</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="form-error" class="error-msg"></div>
+            <div class="spinner" id="form-spinner"></div>
+            <br>
+            <button class="btn pink" style="width:100%;" onclick="enviarCarta()">ENVIAR MI CARTA 💌</button>
+        </div>
+    </div>
+
+    <!-- ── PANTALLA 4: GRACIAS ── -->
+    <div id="screen-gracias" class="screen">
+        <div class="gracias-icon">💖</div>
+        <h1>¡Muchas gracias!</h1>
+        <p>Esto es para Isa, de parte de todos los que la queremos.<br><br>Tu carta ya está guardada y aparecerá en su regalo especial. 🎁</p>
+    </div>
+
+    <script>
+        // ── SUPABASE CONFIG ──────────────────────────────────────────
+        const SUPABASE_URL = 'https://hstxthniajjvatbqwpsx.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzdHh0aG5pYWpqdmF0YnF3cHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzYyODEsImV4cCI6MjA5MTkxMjI4MX0.tF8hfuXDYpp8vSjlTDoEFXv8DfFQeIhlbxhrh5ufvpo';
+
+        async function sbFetch(path, opts = {}) {
+            const res = await fetch(SUPABASE_URL + path, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Content-Type': 'application/json',
+                    ...opts.headers
+                },
+                ...opts
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(err);
+            }
+            const text = await res.text();
+            return text ? JSON.parse(text) : null;
+        }
+
+        async function sbUpload(bucket, path, file) {
+            const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Content-Type': file.type,
+                    'x-upsert': 'true'
+                },
+                body: file
+            });
+            if (!res.ok) throw new Error(await res.text());
+            return path;
+        }
+
+        // ── ESTADO ───────────────────────────────────────────────────
+        let usuarioActual = null; // objeto del usuario logueado
+
+        // ── PANTALLAS ────────────────────────────────────────────────
+        function mostrar(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function irALogin() { mostrar('screen-login'); }
+
+        // ── LETRAS DEL NOMBRE EN LA LANDING ──────────────────────────
+        function buildNombre(texto) {
+            const container = document.getElementById('nombre-letras');
+            container.innerHTML = '';
+            texto.split('').forEach(char => {
+                if (char === ' ') {
+                    const sp = document.createElement('div'); sp.style.width = '20px';
+                    container.appendChild(sp); return;
+                }
+                const s = document.createElement('span');
+                s.className = `char v${Math.floor(Math.random() * 5) + 1}`;
+                s.innerText = char;
+                s.style.setProperty('--r', `${Math.random() * 10 - 5}deg`);
+                container.appendChild(s);
+            });
+        }
+
+        // Detectar si viene usuario en URL: upload.html?u=mama
+        // Esto es opcional, la landing muestra el nombre si viene por URL
+        (function initLanding() {
+            const params = new URLSearchParams(window.location.search);
+            const u = params.get('u');
+            if (u) {
+                document.getElementById('input-usuario').value = u;
+            }
+            // Por defecto mostramos el nombre genérico en la landing
+            buildNombre('Hola amigo');
+        })();
+
+        // ── LOGIN ─────────────────────────────────────────────────────
+        async function hacerLogin() {
+            const usuario = document.getElementById('input-usuario').value.trim();
+            const pass = document.getElementById('input-pass').value.trim();
+            const errEl = document.getElementById('login-error');
+            const spinner = document.getElementById('login-spinner');
+
+            errEl.textContent = '';
+            if (!usuario || !pass) { errEl.textContent = 'Por favor ingresa usuario y contraseña.'; return; }
+
+            spinner.style.display = 'block';
+            try {
+                // Buscar usuario en la tabla
+                const data = await sbFetch(`/rest/v1/usuarios?usuario=eq.${encodeURIComponent(usuario)}&select=*`);
+                if (!data || data.length === 0) throw new Error('Usuario no encontrado.');
+
+                const user = data[0];
+                if (user.password !== pass) throw new Error('Contraseña incorrecta.');
+
+                // Verificar si ya envió carta
+                const cartas = await sbFetch(`/rest/v1/cartas?usuario_id=eq.${user.id}&select=id`);
+                if (cartas && cartas.length > 0) {
+                    errEl.textContent = '¡Ya enviaste tu carta! No puedes enviarla de nuevo.';
+                    spinner.style.display = 'none';
+                    return;
+                }
+
+                usuarioActual = user;
+                // Actualizar landing con el nombre real
+                buildNombre(user.nombre);
+                spinner.style.display = 'none';
+                mostrar('screen-form');
+
+            } catch(e) {
+                spinner.style.display = 'none';
+                errEl.textContent = e.message || 'Error al iniciar sesión.';
+            }
+        }
+
+        // Enter en password → login
+        document.getElementById('input-pass').addEventListener('keydown', e => {
+            if (e.key === 'Enter') hacerLogin();
+        });
+
+        // ── PREVIEW FOTOS ─────────────────────────────────────────────
+        function previewFoto(input, slotId) {
+            const slot = document.getElementById(slotId);
+            const preview = slot.querySelector('.preview');
+            const placeholder = slot.querySelector('.placeholder');
+            const label = slot.querySelector('.label');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    label.textContent = input.files[0].name.slice(0, 20);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // ── ENVIAR CARTA ──────────────────────────────────────────────
+        async function enviarCarta() {
+            const mensaje = document.getElementById('input-mensaje').value.trim();
+            const file1 = document.querySelector('#slot1 input[type=file]').files[0];
+            const file2 = document.querySelector('#slot2 input[type=file]').files[0];
+            const errEl = document.getElementById('form-error');
+            const spinner = document.getElementById('form-spinner');
+            const btn = document.querySelector('#screen-form .btn.pink');
+
+            errEl.textContent = '';
+            if (!mensaje) { errEl.textContent = 'Por favor escribe tu mensaje.'; return; }
+            if (!file1 || !file2) { errEl.textContent = 'Por favor sube las dos fotos.'; return; }
+
+            spinner.style.display = 'block';
+            btn.disabled = true;
+
+            try {
+                const uid = usuarioActual.id;
+                const ext1 = file1.name.split('.').pop();
+                const ext2 = file2.name.split('.').pop();
+                const path1 = `${uid}/foto1.${ext1}`;
+                const path2 = `${uid}/foto2.${ext2}`;
+
+                await sbUpload('fotos', path1, file1);
+                await sbUpload('fotos', path2, file2);
+
+                await sbFetch('/rest/v1/cartas', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        usuario_id: uid,
+                        mensaje: mensaje,
+                        foto1_path: path1,
+                        foto2_path: path2
+                    })
+                });
+
+                mostrar('screen-gracias');
+            } catch(e) {
+                spinner.style.display = 'none';
+                btn.disabled = false;
+                errEl.textContent = 'Hubo un error al enviar. Intenta de nuevo.';
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>
