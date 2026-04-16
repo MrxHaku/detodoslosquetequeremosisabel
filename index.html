@@ -317,9 +317,12 @@
     </div>
 
     <div id="video-overlay">
-        <video id="video-final" style="width:85%; border:8px solid #fff;"><source src="video_cumple.mov" type="video/quicktime"></video>
-        <button class="custom-btn" style="margin-top:20px;" onclick="location.reload()">FINALIZAR</button>
-    </div>
+    <div class="vhs-lines"></div> <video id="video-final" style="width:90%; max-width:1000px; border:10px solid #fff; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+        <source src="video_cumple.mov" type="video/quicktime">
+        Tu navegador no soporta videos.
+    </video>
+    <button class="custom-btn" style="margin-top:20px; position:relative; z-index:5002;" onclick="location.reload()">REPETIR EXPERIENCIA</button>
+</div>
 
     <script>
         // ── SUPABASE CONFIG ──────────────────────────────────────────
