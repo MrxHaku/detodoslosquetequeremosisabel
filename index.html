@@ -352,13 +352,12 @@
         let cartasData = [];   // se llenará desde Supabase
         let totalUsuarios = 0; // número real de usuarios registrados
 
+// ── CARGAR DATOS (Corregida para incluir ID de usuario) ──
         async function cargarCartas() {
             try {
-                // Cargar todos los usuarios ordenados por su posición (id)
                 const usuarios = await sbFetch('/rest/v1/usuarios?select=*&order=id.asc');
                 totalUsuarios = usuarios.length;
 
-                // Para cada usuario, buscar si ya tiene carta enviada
                 const cartas = await sbFetch('/rest/v1/cartas?select=*');
                 const cartaMap = {};
                 cartas.forEach(c => { cartaMap[c.usuario_id] = c; });
@@ -366,8 +365,9 @@
                 cartasData = usuarios.map(u => {
                     const carta = cartaMap[u.id];
                     return {
+                        id: u.id, // Guardamos el ID real para el Set de leídas
                         nombre: u.nombre,
-                        texto: carta ? carta.mensaje : null,
+                        texto: carta ? carta.mensaje : "Esta carta aún no ha sido escrita...",
                         foto1: carta && carta.foto1_path ? getPublicUrl('fotos', carta.foto1_path) : null,
                         foto2: carta && carta.foto2_path ? getPublicUrl('fotos', carta.foto2_path) : null,
                         enviada: !!carta
@@ -380,21 +380,57 @@
             }
         }
 
-        // ── GRID DE SOBRES ───────────────────────────────────────────
-        function construirGrid() {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            const total = Math.max(28, totalUsuarios);
-            for (let i = 0; i < total; i++) {
-                const env = document.createElement('div');
-                env.className = 'envelope';
-                if (cartasData[i] && !cartasData[i].enviada) env.classList.add('pendiente');
-                env.innerHTML = `
-                    <div class="carta-interior"></div>
-                    <div class="env-body"><div class="env-number">${i + 1}</div></div>
-                `;
-                env.onclick = () => openLetter(i);
-                grid.appendChild(env);
+        // ── ABRIR CARTA (Añadida lógica de modal y fotos) ──
+        async function openLetter(id) {
+            const datos = cartasData[id];
+            if (!datos) return;
+
+            // 1. Rellenar el nombre (estilo letras de colores)
+            buildLetters(datos.nombre, 'friend-name-container');
+
+            // 2. Rellenar el texto
+            document.getElementById('letter-text').innerText = datos.texto;
+
+            // 3. Limpiar y rellenar fotos
+            const photoContainer = document.getElementById('photo-container');
+            photoContainer.innerHTML = '';
+            
+            if (datos.foto1) {
+                const img1 = document.createElement('img');
+                img1.src = datos.foto1;
+                img1.style.cssText = `width:100%; border:5px solid #fff; box-shadow:0 4px 8px rgba(0,0,0,0.1); transform:rotate(-3deg);`;
+                photoContainer.appendChild(img1);
+            }
+            if (datos.foto2) {
+                const img2 = document.createElement('img');
+                img2.src = datos.foto2;
+                img2.style.cssText = `width:100%; border:5px solid #fff; box-shadow:0 4px 8px rgba(0,0,0,0.1); transform:rotate(3deg); margin-top:10px;`;
+                photoContainer.appendChild(img2);
+            }
+
+            // 4. Mostrar el modal
+            document.getElementById('overlay').style.display = 'flex';
+            
+            // 5. Marcar como leída usando el ID único del usuario
+            cartasLeidas.add(datos.id);
+            
+            // 6. Efecto visual en el sobre
+            const sobres = document.querySelectorAll('.envelope');
+            if(sobres[id]) {
+                sobres[id].style.filter = 'grayscale(1) opacity(0.7)';
+                sobres[id].classList.add('read');
+            }
+            
+            console.log(`Llevas ${cartasLeidas.size} de ${TOTAL_CARTAS} cartas leídas`);
+        }
+
+        // ── CERRAR MODAL (Corregida) ──
+        function closeModal() {
+            document.getElementById('overlay').style.display = 'none';
+
+            // Verificamos si ya leyó las 28 cartas
+            if (cartasLeidas.size >= TOTAL_CARTAS) {
+                setTimeout(dispararVideoFinal, 500); // Pequeño delay para que cierre el modal primero
             }
         }
 
