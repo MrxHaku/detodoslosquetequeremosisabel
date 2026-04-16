@@ -132,15 +132,20 @@
     </div>
 
     <script>
-        // ── SUPABASE CONFIG ──────────────────────────────────────────
+       // ── SUPABASE CONFIG ──────────────────────────────────────────
         const SUPABASE_URL = 'https://hstxthniajjvatbqwpsx.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzdHh0aG5pYWpqdmF0YnF3cHN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzYyODEsImV4cCI6MjA5MTkxMjI4MX0.tF8hfuXDYpp8vSjlTDoEFXv8DfFQeIhlbxhrh5ufvpo';
 
-        // Clave de administrador — cámbiala a algo que solo tú sepas
+        // Clave de administrador
         const ADMIN_PASS = 'admin@ISA28';
 
-        // URL base de tu GitHub Pages (ajusta si es diferente)
-        const BASE_URL = window.location.origin + window.location.pathname.replace('admin.html', '');
+        // CORRECCIÓN AQUÍ: Esta lógica obtiene la carpeta actual sin importar el nombre del archivo
+        const getBaseUrl = () => {
+            const path = window.location.pathname;
+            const directory = path.substring(0, path.lastIndexOf('/'));
+            return window.location.origin + directory;
+        };
+        const BASE_URL = getBaseUrl();
 
         async function sbFetch(path, opts = {}) {
             const res = await fetch(SUPABASE_URL + path, {
@@ -194,7 +199,7 @@
                 tbody.innerHTML = '';
                 usuarios.forEach((u, i) => {
                     const enviada = conCarta.has(u.id);
-                    const link = `${BASE_URL}upload.html?u=${encodeURIComponent(u.usuario)}`;
+                    const link = `${BASE_URL}/upload.html?u=${encodeURIComponent(u.usuario)}`;
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${i + 1}</td>

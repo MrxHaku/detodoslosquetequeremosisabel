@@ -370,6 +370,48 @@
                 console.error(e);
             }
         }
+        // 1. Obtener el usuario de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userTag = urlParams.get('u'); // Esto capturará "emaoso"
+
+        if (!userTag) {
+            alert("Enlace no válido. Por favor, solicita uno nuevo.");
+        }
+
+        // 2. Función para subir la carta a Supabase
+        async function subirCarta() {
+            const textoCarta = document.getElementById('mensaje').value;
+            const fileInput = document.getElementById('foto');
+            const file = fileInput.files[0];
+
+            // Subir imagen al Bucket de Supabase
+            const filePath = `fotos/${userTag}/${file.name}`;
+            const { data: photoData, error: photoError } = await supabase.storage
+                .from('imagenes_cartas')
+                .upload(filePath, file);
+
+            if (photoError) return alert("Error al subir foto");
+
+            // Obtener URL pública de la foto
+            const { data: publicUrl } = supabase.storage.from('imagenes_cartas').getPublicUrl(filePath);
+
+            // Guardar en la tabla de base de datos
+            const { error: dbError } = await supabase
+                .from('cartas')
+                .update({ 
+                    texto: textoCarta, 
+                    foto_url: publicUrl.publicUrl,
+                    completado: true 
+                })
+                .eq('identificador', userTag); // Aquí usas el "emaoso" para saber qué fila actualizar
+
+            if (dbError) {
+                console.error(dbError);
+                alert("Error al guardar la carta");
+            } else {
+                alert("¡Carta subida con éxito!");
+            }
+        }
     </script>
 </body>
 </html>
