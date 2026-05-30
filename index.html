@@ -297,6 +297,7 @@
         .popup-sub { font-size: 1rem; color: #888; margin-bottom: 36px; font-family: 'Special Elite', serif; }
         .popup-card .custom-btn { font-size: 1rem; }
     </style>
+    <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
 <body class="grid-bg">
 
@@ -316,10 +317,12 @@
             <span class="corner bot-left"></span>
             <span class="corner bot-right"></span>
             <div class="video-frame-inner">
-                <video id="video-intro" playsinline>
-                    <source src="video_cumple.mov" type="video/quicktime">
-                    <source src="video_cumple.mp4" type="video/mp4">
-                </video>
+                <iframe id="video-intro"
+                    src="https://player.vimeo.com/video/1196809983?autoplay=0&controls=0&loop=0"
+                    style="width:100%;display:block;max-height:78vh;aspect-ratio:16/9;border:none;"
+                    allow="autoplay; fullscreen"
+                    allowfullscreen>
+                </iframe>
             </div>
         <div class="video-controls">
             <button class="vc-btn" id="vc-play-btn" onclick="toggleVideoIntro()">
@@ -332,6 +335,28 @@
             <input type="range" id="video-volume" min="0" max="1" step="0.05" value="0.8">
         </div>
         </div><!-- /.video-frame-wrapper -->
+    </div>
+
+    <!-- POPUP DAME PLAY -->
+    <div id="popup-play" style="
+        display:none; position:fixed; inset:0; z-index:9500;
+        justify-content:center; align-items:center;
+        background:rgba(0,0,0,0.55);
+    ">
+        <div style="
+            background:var(--crema); border:4px solid #333;
+            box-shadow:10px 10px 0 #333; padding:50px 44px;
+            text-align:center; max-width:380px; width:90vw; position:relative;
+        ">
+            <div style="font-size:3rem; margin-bottom:16px;">🎬</div>
+            <p style="font-family:'Dancing Script',cursive; font-size:2rem; color:#d62828; margin-bottom:10px; line-height:1.2;">Para Isa,<br>con todo el amor</p>
+            <p style="font-size:0.95rem; color:#888; margin-bottom:30px;">Dale play cuando estés lista 💖</p>
+            <button onclick="darPlay()" style="
+                padding:16px 40px; cursor:pointer; font-family:'Bungee',cursive;
+                font-size:1.1rem; border:3px solid #333; background:var(--v1);
+                color:#fff; box-shadow:5px 5px 0 #333; transition:0.2s;
+            ">▶ DALE PLAY</button>
+        </div>
     </div>
 
     <!-- REPRODUCTOR DE MÚSICA -->
@@ -476,43 +501,79 @@
             }
         }
 
-        // ── VIDEO INTRO ──────────────────────────────────────────────
+        // ── VIDEO INTRO (Vimeo API) ──────────────────────────────────
         const videoIntroScreen = document.getElementById('video-intro-screen');
-        const videoIntro = document.getElementById('video-intro');
+        let vimeoPlayer = null;
+
+        function initVimeoPlayer() {
+            vimeoPlayer = new Vimeo.Player(document.getElementById('video-intro'));
+            vimeoPlayer.on('timeupdate', function(data) {
+                document.getElementById('video-progress').value = data.percent * 100;
+                document.getElementById('video-time').textContent =
+                    fmt(data.seconds) + ' / ' + fmt(data.duration);
+            });
+            vimeoPlayer.on('ended', function() {
+                updateVcUI(false);
+                videoIntroScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    videoIntroScreen.style.display = 'none';
+                    videoIntroScreen.classList.remove('visible', 'fade-out');
+                    revealLanding();
+                }, 1000);
+            });
+            vimeoPlayer.on('play', () => updateVcUI(true));
+            vimeoPlayer.on('pause', () => updateVcUI(false));
+        }
 
         function showVideoIntro() {
             videoIntroScreen.style.display = 'flex';
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => { videoIntroScreen.classList.add('visible'); });
             });
-            videoIntro.volume = parseFloat(document.getElementById('video-volume').value);
-            videoIntro.currentTime = 0;
-            videoIntro.play().catch(() => {});
+            if (!vimeoPlayer) initVimeoPlayer();
+            // Mostrar popup "dame play"
+            document.getElementById('popup-play').style.display = 'flex';
+            updateVcUI(false);
+        }
+
+        function darPlay() {
+            document.getElementById('popup-play').style.display = 'none';
+            if (vimeoPlayer) {
+                vimeoPlayer.setVolume(parseFloat(document.getElementById('video-volume').value));
+                vimeoPlayer.play();
+            }
             updateVcUI(true);
         }
 
         function verVideoDeNuevo() {
-            // Ocultar landing, mostrar video
             const landing = document.getElementById('landing');
             landing.style.opacity = '0';
             landing.style.visibility = 'hidden';
-            showVideoIntro();
+            if (!vimeoPlayer) initVimeoPlayer();
+            vimeoPlayer.setCurrentTime(0);
+            videoIntroScreen.style.display = 'flex';
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => { videoIntroScreen.classList.add('visible'); });
+            });
+            document.getElementById('popup-play').style.display = 'flex';
+            updateVcUI(false);
         }
 
         function revealLanding() {
-            // Marcar que el video ya se vio en esta sesión
             sessionStorage.setItem('videoVisto', '1');
             const landing = document.getElementById('landing');
             landing.style.transition = 'opacity 0.8s ease, visibility 0.8s';
             landing.style.visibility = 'visible';
             landing.style.opacity = '1';
-            // Mostrar botón "ver video" para que lo puedan repetir
             document.getElementById('btn-ver-video').style.display = 'block';
         }
 
         function toggleVideoIntro() {
-            if (videoIntro.paused) { videoIntro.play(); updateVcUI(true); }
-            else { videoIntro.pause(); updateVcUI(false); }
+            if (!vimeoPlayer) return;
+            vimeoPlayer.getPaused().then(paused => {
+                if (paused) { vimeoPlayer.play(); }
+                else { vimeoPlayer.pause(); }
+            });
         }
 
         function updateVcUI(playing) {
@@ -520,20 +581,13 @@
             document.getElementById('vc-pause-icon').style.display = playing ? 'block' : 'none';
         }
 
-        videoIntro.addEventListener('timeupdate', () => {
-            if (!videoIntro.duration) return;
-            const pct = (videoIntro.currentTime / videoIntro.duration) * 100;
-            document.getElementById('video-progress').value = pct;
-            document.getElementById('video-time').textContent =
-                fmt(videoIntro.currentTime) + ' / ' + fmt(videoIntro.duration);
-        });
-
         document.getElementById('video-progress').addEventListener('input', function() {
-            videoIntro.currentTime = (this.value / 100) * videoIntro.duration;
+            if (!vimeoPlayer) return;
+            vimeoPlayer.getDuration().then(dur => vimeoPlayer.setCurrentTime((this.value / 100) * dur));
         });
 
         document.getElementById('video-volume').addEventListener('input', function() {
-            videoIntro.volume = parseFloat(this.value);
+            if (vimeoPlayer) vimeoPlayer.setVolume(parseFloat(this.value));
         });
 
         function fmt(s) {
@@ -542,16 +596,6 @@
             return `${m}:${sec}`;
         }
 
-        // Cuando el video intro termina → fade out → revelar landing
-        videoIntro.addEventListener('ended', () => {
-            updateVcUI(false);
-            videoIntroScreen.classList.add('fade-out');
-            setTimeout(() => {
-                videoIntroScreen.style.display = 'none';
-                videoIntroScreen.classList.remove('visible', 'fade-out');
-                revealLanding();
-            }, 1000);
-        });
 
         // ── PLAYLIST ─────────────────────────────────────────────────
         const playlist = [
