@@ -196,12 +196,12 @@
 
         /* ── SOBRE ── */
         .envelope { 
-            width:150px; height:105px; background:#f3d5b5; position:relative; 
+            width: var(--env-w, 200px); height: var(--env-h, 140px); background:#f3d5b5; position:relative; 
             cursor:pointer; transition:transform 0.3s ease; perspective:800px; overflow:visible;
         }
         .envelope:hover { transform:scale(1.1) rotate(2deg); }
         .envelope .carta-interior {
-            position:absolute; bottom:0; left:10%; width:80%; height:55px;
+            position:absolute; bottom:0; left:10%; width:80%; height: var(--env-carta, 75px);
             background:#fff; border:1px solid #e0e0e0; border-radius:2px 2px 0 0;
             z-index:1; transform:translateY(0px);
             transition:transform 0.5s ease 0.2s, opacity 0.4s ease 0.2s; opacity:0;
@@ -211,14 +211,14 @@
         .envelope:hover .carta-interior { transform:translateY(-28px); opacity:1; }
         .envelope::after {
             content:''; position:absolute; top:0; left:0; z-index:3;
-            border-top:55px solid #e6ccb2; border-left:75px solid transparent; border-right:75px solid transparent;
+            border-top: var(--env-flap, 70px) solid #e6ccb2;
+            border-left: var(--env-half, 100px) solid transparent;
+            border-right: var(--env-half, 100px) solid transparent;
             transform-origin:top; transition:transform 0.45s ease;
         }
         .envelope:hover::after { transform:rotateX(160deg); }
         .env-body { position:absolute; inset:0; z-index:2; background:#f3d5b5; display:flex; justify-content:center; align-items:center; }
-        .env-number { font-family:'Bungee'; color:#7f5539; font-size:1.5rem; }
-        .envelope.pendiente .env-body { background:repeating-linear-gradient(45deg,#f3d5b5,#f3d5b5 5px,#edd5aa 5px,#edd5aa 10px); }
-        .envelope.pendiente .env-number { opacity:0.5; }
+        .env-heart { font-size:2.2rem; line-height:1; }
 
         /* ── MODAL CARTA ── */
         .modal-container { 
@@ -257,8 +257,8 @@
         .player-btn svg { fill:#333; }
         .player-btn:hover svg { fill:var(--v1); }
 
-        #main-content { display:none; padding:130px 20px 80px; flex-direction:column; align-items:center; position:relative; }
-        .envelopes-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:40px; max-width:1200px; position:relative; z-index:1; }
+        #main-content { display:none; padding:130px 20px 80px; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; position:relative; }
+        .envelopes-grid { display:flex; flex-wrap:wrap; justify-content:center; align-content:center; gap:clamp(20px, 3vw, 50px); max-width:1400px; width:100%; position:relative; z-index:1; }
         .custom-btn { padding:15px 35px; cursor:pointer; font-family:'Bungee'; border:3px solid #333; background:#fff; box-shadow:5px 5px 0px #333; transition:0.2s; }
         .custom-btn:hover { transform:translate(-2px,-2px); box-shadow:7px 7px 0px #333; }
         .header-nav { position:fixed; top:0; width:100%; height:90px; background:linear-gradient(var(--crema) 75%,transparent); display:flex; justify-content:center; align-items:center; z-index:500; }
@@ -490,15 +490,34 @@
         function construirGrid() {
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
-            const total = Math.max(28, totalUsuarios);
-            for (let i = 0; i < total; i++) {
+            const enviadas = cartasData
+                .map((c, i) => ({ ...c, idx: i }))
+                .filter(c => c.enviada);
+
+            // Tamaño del sobre según cantidad: pocos = más grandes, muchos = más pequeños
+            const n = enviadas.length;
+            let w, h, flap, half, carta;
+            if (n <= 4)       { w=280; h=196; flap=98;  half=140; carta=105; }
+            else if (n <= 8)  { w=240; h=168; flap=84;  half=120; carta=90;  }
+            else if (n <= 12) { w=210; h=147; flap=73;  half=105; carta=79;  }
+            else if (n <= 18) { w=185; h=130; flap=65;  half=92;  carta=70;  }
+            else if (n <= 24) { w=165; h=116; flap=58;  half=82;  carta=62;  }
+            else              { w=150; h=105; flap=52;  half=75;  carta=56;  }
+
+            // Aplicar variables CSS al grid
+            grid.style.setProperty('--env-w', w + 'px');
+            grid.style.setProperty('--env-h', h + 'px');
+            grid.style.setProperty('--env-flap', flap + 'px');
+            grid.style.setProperty('--env-half', half + 'px');
+            grid.style.setProperty('--env-carta', carta + 'px');
+
+            enviadas.forEach((c, domIndex) => {
                 const env = document.createElement('div');
                 env.className = 'envelope';
-                if (cartasData[i] && !cartasData[i].enviada) env.classList.add('pendiente');
-                env.innerHTML = `<div class="carta-interior"></div><div class="env-body"><div class="env-number">${i + 1}</div></div>`;
-                env.onclick = () => openLetter(i);
+                env.innerHTML = `<div class="carta-interior"></div><div class="env-body"><div class="env-heart">🤎</div></div>`;
+                env.onclick = () => openLetter(c.idx, domIndex);
                 grid.appendChild(env);
-            }
+            });
         }
 
         // ── VIDEO INTRO (Vimeo API) ──────────────────────────────────
@@ -683,7 +702,7 @@
         buildLetters("te queremos, Bel", 'line2');
 
         // ── ABRIR CARTA ──────────────────────────────────────────────
-        function openLetter(i) {
+        function openLetter(i, domIndex) {
             const data = cartasData[i] || { nombre: `Carta ${i + 1}`, texto: null, foto1: null, foto2: null, enviada: false };
             buildLetters(data.nombre, 'friend-name-container');
             document.getElementById('letter-text')[(!data.enviada || !data.texto) ? 'innerHTML' : 'innerText'] =
@@ -702,15 +721,17 @@
             });
 
             document.getElementById('overlay').style.display = 'flex';
-            document.querySelectorAll('.envelope')[i].style.filter = 'grayscale(1)';
-            readSet.add(i);
+            // Usar domIndex para marcar el sobre correcto en el DOM
+            const envEls = document.querySelectorAll('.envelope');
+            if (envEls[domIndex]) envEls[domIndex].style.filter = 'grayscale(1)';
+            readSet.add(domIndex);
         }
 
         // ── CERRAR MODAL + POPUP 28 CARTAS ───────────────────────────
         function closeModal() {
             document.getElementById('overlay').style.display = 'none';
             const totalEnviadas = cartasData.filter(c => c && c.enviada).length;
-            if (readSet.size >= totalEnviadas && totalEnviadas === totalUsuarios && totalUsuarios > 0) {
+            if (readSet.size >= totalEnviadas && totalEnviadas > 0) {
                 const popup = document.getElementById('popup-feliz');
                 popup.style.display = 'flex';
             }
